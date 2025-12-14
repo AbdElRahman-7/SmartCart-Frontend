@@ -31,45 +31,45 @@ const ProductListPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 6;
+  const productsPerPage = 5;
   const hasFetched = useRef(false);
 
 
   // Products data - in real app, this would come from an API
- useEffect(() => {
-  if (hasFetched.current) return;
-  hasFetched.current = true;
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
+  useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
 
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error("Failed to fetch product");
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Failed to fetch product");
 
-      const data: Product[] = await response.json();
+        const data: Product[] = await response.json();
 
-      setProducts(data);
-      setFilteredProducts(data);
+        setProducts(data);
+        setFilteredProducts(data);
 
-      const uniqueCategories = [...new Set(data.map(p => p.category))];
-      const uniqueBrands = [...new Set(data.map(p => p.brand))];
+        const uniqueCategories = [...new Set(data.map(p => p.category))];
+        const uniqueBrands = [...new Set(data.map(p => p.brand))];
 
-      setCategories(uniqueCategories);
-      setBrands(uniqueBrands);
+        setCategories(uniqueCategories);
+        setBrands(uniqueBrands);
 
-    } catch (error) {
-      console.error("Error fetching product:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchProducts();
+    fetchProducts();
 
-  const interval = setInterval(fetchProducts, 5000);
+    const interval = setInterval(fetchProducts, 5000);
 
-  return () => clearInterval(interval);
-}, []);
+    return () => clearInterval(interval);
+  }, []);
 
 
 

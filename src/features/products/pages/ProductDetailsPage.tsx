@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import CommentSection from "../components/CommentSection";
+import { useCart } from "../../../context/CartContext";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
@@ -25,6 +26,8 @@ const ProductDetailPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
 
 
 
@@ -41,7 +44,7 @@ const ProductDetailPage = () => {
         if (!response.ok) throw new Error("Failed to fetch product");
 
         const data = await response.json();
-        setProduct(data);
+        setProduct({ ...data, inStock: true });
       } catch (error) {
         console.error(error);
         setProduct(null);
@@ -173,16 +176,40 @@ const ProductDetailPage = () => {
           </div>
 
           {/* Add to Cart */}
-          <div className="flex space-x-4 mb-8">
-            <button
-              className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!product.inStock}
-            >
-              {product.inStock ? "Add to Cart" : "Out of Stock"}
-            </button>
-            <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50">
-              ♡
-            </button>
+          <div className="flex flex-col space-y-4 mb-8">
+            <div className="flex items-center space-x-4">
+              <span className="font-medium text-gray-700">Quantity:</span>
+              <div className="flex items-center border border-gray-300 rounded-lg">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="px-3 py-1 hover:bg-gray-100 transition-colors"
+                >
+                  -
+                </button>
+                <div className="w-12 text-center border-l border-r border-gray-300 py-1">
+                  {quantity}
+                </div>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="px-3 py-1 hover:bg-gray-100 transition-colors"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div className="flex space-x-4">
+              <button
+                onClick={() => addToCart(product, quantity)}
+                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-md active:transform active:scale-95"
+                disabled={!product.inStock}
+              >
+                {product.inStock ? "Add to Cart" : "Out of Stock"}
+              </button>
+              <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-500 hover:text-red-500 transition-colors">
+                <span className="text-xl">♡</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
