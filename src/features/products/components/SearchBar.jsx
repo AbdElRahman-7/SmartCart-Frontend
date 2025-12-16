@@ -37,8 +37,4 @@ const SearchBar = ({ initialValue, onSearch, onClear }) => {
   );
 };
 
-<<<<<<< HEAD
 export default SearchBar;
-=======
-export default SearchBar;
->>>>>>> main

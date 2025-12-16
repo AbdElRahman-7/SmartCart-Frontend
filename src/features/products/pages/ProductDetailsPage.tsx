@@ -9,7 +9,7 @@ type Product = {
   category: string;
   brand: string;
   images: string[];
-  description: string;
+  description: string;          
   features: string[];
   specifications: Record<string, string>;
   inStock: boolean;

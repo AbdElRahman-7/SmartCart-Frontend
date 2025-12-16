@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import { useState, useEffect } from "react";
-=======
-// src/components/ProductListPage.js
-import React, { useState, useEffect } from "react";
->>>>>>> main
 import { Link } from "react-router-dom";
 
 const ProductListPage = () => {

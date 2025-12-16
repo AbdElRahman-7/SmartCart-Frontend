@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
@@ -10,7 +9,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Brand Logo */}
         <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
-          SmartCarts
+          SmartCarts 
         </Link>
 
         {/* Desktop Navigation */}
@@ -62,17 +61,6 @@ const Header = () => {
           </nav>
         </div>
       )}
-=======
-// src/components/Header.jsx
-import { Link } from "react-router-dom";
-
-const Header = () => {
-  return (
-    <header className="p-4 bg-gray-200 flex gap-4">
-      <Link to="/">Home</Link>
-      <Link to="/products">Products</Link>
-      <Link to="/about">About</Link>
->>>>>>> main
     </header>
   );
 };

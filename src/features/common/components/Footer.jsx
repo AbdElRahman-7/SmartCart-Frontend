@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -16,7 +15,7 @@ const Footer = () => {
             <p className="text-gray-400 text-sm">
               Your one-stop shop for everything you need. Premium quality, best prices.
             </p>
-          </div>
+          </div> 
 
           {/* Quick Links */}
           <div>
@@ -60,13 +59,6 @@ const Footer = () => {
           <p>&copy; {currentYear} SmartCarts. All rights reserved.</p>
         </div>
       </div>
-=======
-// src/components/Footer.jsx
-const Footer = () => {
-  return (
-    <footer className="p-4 bg-gray-100 text-center">
-      <p>&copy; {new Date().getFullYear()} My Store. All rights reserved.</p>
->>>>>>> main
     </footer>
   );
 };
