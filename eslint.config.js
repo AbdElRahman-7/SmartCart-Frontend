@@ -8,7 +8,11 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
   {
+<<<<<<< HEAD
+    files: ['**/*.{js,jsx,ts,tsx}'],
+=======
     files: ['**/*.{ts,tsx}'],
+>>>>>>> main
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
@@ -19,5 +23,11 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+<<<<<<< HEAD
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+=======
+>>>>>>> main
   },
 ])

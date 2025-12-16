@@ -38,4 +38,8 @@ const Product = ({
   );
 };
 
+<<<<<<< HEAD
 export default Product;
+=======
+export default Product;
+>>>>>>> main
