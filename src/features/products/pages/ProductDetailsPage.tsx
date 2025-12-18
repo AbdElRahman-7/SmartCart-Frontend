@@ -2,19 +2,23 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import CommentSection from "../components/CommentSection";
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 type Product = {
   id: number;
   name: string;
   price: number;
   category: string;
   brand: string;
-  images: string[];
-  description: string;          
-  features: string[];
-  specifications: Record<string, string>;
-  inStock: boolean;
-  rating: number;
+  images?: string[];
+  description?: string;
+  features?: string[];
+  specifications?: Record<string, string>;
+  inStock?: boolean;
+  rating?: number;
 };
+
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,83 +26,33 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
 
-  const mockProducts: Record<string, Product> = {
-    "1": {
-      id: 1,
-      name: "iPhone 14 Pro",
-      price: 999,
-      category: "Smartphones",
-      brand: "Apple",
-      images: [
-        "https://via.placeholder.com/600x600?text=iPhone+Front",
-        "https://via.placeholder.com/600x600?text=iPhone+Back",
-        "https://via.placeholder.com/600x600?text=iPhone+Side",
-      ],
-      description:
-        "The most advanced iPhone with Dynamic Island, Always-On display, and the best camera system ever on iPhone.",
-      features: [
-        "6.1-inch Super Retina XDR display",
-        "A16 Bionic chip",
-        "Pro camera system with 48MP Main",
-        "Dynamic Island",
-        "Always-On display",
-      ],
-      specifications: {
-        Storage: "128GB, 256GB, 512GB, 1TB",
-        Display: "6.1-inch Super Retina XDR",
-        Chip: "A16 Bionic",
-        Camera: "48MP Main, 12MP Ultra Wide, 12MP 2x Telephoto",
-        Battery: "Up to 23 hours video playback",
-      },
-      inStock: true,
-      rating: 4.8,
-    },
-    "2": {
-      id: 2,
-      name: "MacBook Pro",
-      price: 1299,
-      category: "Laptops",
-      brand: "Apple",
-      images: [
-        "https://via.placeholder.com/600x600?text=MacBook+Front",
-        "https://via.placeholder.com/600x600?text=MacBook+Keyboard",
-        "https://via.placeholder.com/600x600?text=MacBook+Side",
-      ],
-      description:
-        "The most powerful MacBook Pro ever with the M2 chip, designed for professionals and creators.",
-      features: [
-        "Apple M2 chip",
-        "13-inch Retina display",
-        "Up to 20 hours battery life",
-        "8GB Unified Memory",
-        "256GB SSD Storage",
-      ],
-      specifications: {
-        Chip: "Apple M2",
-        Memory: "8GB Unified Memory",
-        Storage: "256GB SSD",
-        Display: "13.3-inch Retina",
-        Battery: "Up to 20 hours",
-        Ports: "Two Thunderbolt / USB 4 ports",
-      },
-      inStock: true,
-      rating: 4.7,
-    },
-  };
+
 
   useEffect(() => {
-    // Simulate API call
-    setLoading(true);
-    setTimeout(() => {
-      // Validate id exists and is a key in mockProducts
-      if (id && mockProducts[id]) {
-        setProduct(mockProducts[id]);
-      } else {
-        setProduct(null);
-      }
+    if (!id) {
       setLoading(false);
-    }, 500);
+      return;
+    }
+
+    const fetchProduct = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch product");
+
+        const data = await response.json();
+        setProduct(data);
+      } catch (error) {
+        console.error(error);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
   }, [id]);
+
 
   if (loading) {
     return (
@@ -143,21 +97,20 @@ const ProductDetailPage = () => {
         <div>
           <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
             <img
-              src={product.images[selectedImage]}
+              src={product.images?.[selectedImage]}
               alt={product.name}
               className="w-full h-96 object-contain"
             />
           </div>
           <div className="flex space-x-2 overflow-x-auto">
-            {product.images.map((image, index) => (
+            {product.images?.map((image, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedImage(index)}
-                className={`shrink-0 w-20 h-20 border-2 rounded-lg overflow-hidden ${
-                  selectedImage === index
-                    ? "border-blue-500"
-                    : "border-gray-200"
-                }`}
+                className={`shrink-0 w-20 h-20 border-2 rounded-lg overflow-hidden ${selectedImage === index
+                  ? "border-blue-500"
+                  : "border-gray-200"
+                  }`}
               >
                 <img
                   src={image}
@@ -180,14 +133,14 @@ const ProductDetailPage = () => {
             </span>
           </div>
 
-          <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+          <h1 className="text-3xl font-bold mb-4">{product?.name}</h1>
 
           <div className="flex items-center mb-4">
             <div className="flex text-yellow-400 mr-2">
-              {"★".repeat(Math.floor(product.rating))}
-              {"☆".repeat(5 - Math.floor(product.rating))}
+              {"★".repeat(Math.floor(product.rating || 0))}
+              {"☆".repeat(5 - Math.floor(product.rating || 0))}
             </div>
-            <span className="text-gray-600">({product.rating})</span>
+            <span className="text-gray-600">({product.rating || 0})</span>
           </div>
 
           <p className="text-2xl font-bold text-green-600 mb-6">
@@ -196,11 +149,10 @@ const ProductDetailPage = () => {
 
           <div className="mb-6">
             <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                product.inStock
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              }`}
+              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${product.inStock
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+                }`}
             >
               {product.inStock ? "In Stock" : "Out of Stock"}
             </span>
@@ -214,7 +166,7 @@ const ProductDetailPage = () => {
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-3">Key Features</h3>
             <ul className="list-disc list-inside space-y-1 text-gray-700">
-              {product.features.map((feature, index) => (
+              {product.features?.map((feature, index) => (
                 <li key={index}>{feature}</li>
               ))}
             </ul>
@@ -241,7 +193,7 @@ const ProductDetailPage = () => {
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <table className="w-full">
             <tbody>
-              {Object.entries(product.specifications).map(([key, value]) => (
+              {product.specifications && Object.entries(product.specifications).map(([key, value]) => (
                 <tr
                   key={key}
                   className="border-b border-gray-200 last:border-b-0"
@@ -256,8 +208,8 @@ const ProductDetailPage = () => {
           </table>
         </div>
 
-      {/* Comment Section */}
-      <CommentSection />
+        {/* Comment Section */}
+        <CommentSection productId={product.id} />
       </div>
 
       {/* Back to Products */}

@@ -1,11 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL;
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  brand: string;
+  image?: string;
+  description?: string;
+}
+
+interface Filters {
+  category: string;
+  brand: string;
+  search: string;
+}
 
 const ProductListPage = () => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [brands, setBrands] = useState<string[]>([]);
+  const hasFetched = useRef(false);
+
   const [filters, setFilters] = useState({
     category: "",
     brand: "",
@@ -14,92 +33,32 @@ const ProductListPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 6;
 
-  // Mock data - in real app, this would come from an API
+  // Products data - in real app, this would come from an API
   useEffect(() => {
-    const mockProducts = [
-      {
-        id: 1,
-        name: "iPhone 14 Pro",
-        price: 999,
-        category: "Smartphones",
-        brand: "Apple",
-        image: "https://via.placeholder.com/300x300?text=iPhone+14+Pro",
-        description: "Latest iPhone with advanced features",
-      },
-      {
-        id: 2,
-        name: "Galaxy S23",
-        price: 799,
-        category: "Smartphones",
-        brand: "Samsung",
-        image: "https://via.placeholder.com/300x300?text=Galaxy+S23",
-        description: "Powerful Android smartphone",
-      },
-      {
-        id: 3,
-        name: "MacBook Pro",
-        price: 1299,
-        category: "Laptops",
-        brand: "Apple",
-        image: "https://via.placeholder.com/300x300?text=MacBook+Pro",
-        description: "Professional laptop for creators",
-      },
-      {
-        id: 4,
-        name: "ThinkPad X1",
-        price: 1099,
-        category: "Laptops",
-        brand: "Lenovo",
-        image: "https://via.placeholder.com/300x300?text=ThinkPad+X1",
-        description: "Business laptop",
-      },
-      {
-        id: 5,
-        name: "AirPods Pro",
-        price: 249,
-        category: "Audio",
-        brand: "Apple",
-        image: "https://via.placeholder.com/300x300?text=AirPods+Pro",
-        description: "Wireless earbuds with noise cancellation",
-      },
-      {
-        id: 6,
-        name: "Galaxy Buds",
-        price: 149,
-        category: "Audio",
-        brand: "Samsung",
-        image: "https://via.placeholder.com/300x300?text=Galaxy+Buds",
-        description: "Wireless earbuds",
-      },
-      {
-        id: 7,
-        name: "iPad Air",
-        price: 599,
-        category: "Tablets",
-        brand: "Apple",
-        image: "https://via.placeholder.com/300x300?text=iPad+Air",
-        description: "Versatile tablet",
-      },
-      {
-        id: 8,
-        name: "Galaxy Tab",
-        price: 449,
-        category: "Tablets",
-        brand: "Samsung",
-        image: "https://via.placeholder.com/300x300?text=Galaxy+Tab",
-        description: "Android tablet",
-      },
-    ];
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+    const fetchProducts = async () => {
+      try {
 
-    setProducts(mockProducts);
-    setFilteredProducts(mockProducts);
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Failed to fetch product");
+        const data: Product[] = await response.json();
+        setProducts(data);
+        setFilteredProducts(data);
 
-    // Extract unique categories and brands
-    const uniqueCategories = [...new Set(mockProducts.map((p) => p.category))];
-    const uniqueBrands = [...new Set(mockProducts.map((p) => p.brand))];
+        // Extract unique categories and brands
+        const uniqueCategories = [...new Set(data.map((p) => p.category))];
+        const uniqueBrands = [...new Set(data.map((p) => p.brand))];
 
-    setCategories(uniqueCategories);
-    setBrands(uniqueBrands);
+        setCategories(uniqueCategories);
+        setBrands(uniqueBrands);
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   // Apply filters
@@ -119,9 +78,9 @@ const ProductListPage = () => {
     if (filters.search) {
       result = result.filter(
         (product) =>
-          product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+          product.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
           product.description
-            .toLowerCase()
+            ?.toLowerCase()
             .includes(filters.search.toLowerCase())
       );
     }
@@ -131,7 +90,7 @@ const ProductListPage = () => {
   }, [filters, products]);
 
   // Handle filter changes
-  const handleFilterChange = (filterType, value) => {
+  const handleFilterChange = (filterType: keyof Filters, value: string) => {
     setFilters((prev) => ({
       ...prev,
       [filterType]: value,
@@ -147,7 +106,7 @@ const ProductListPage = () => {
   );
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -241,7 +200,7 @@ const ProductListPage = () => {
                 {product.description}
               </p>
               <Link
-                to={`/product/${product.id}`}
+                to={`/product/${product.id}?brand=${product.brand}&category=${product.category}`}
                 className="block w-full bg-blue-600 text-white text-center py-2 rounded-md hover:bg-blue-700 transition-colors"
               >
                 View Details
@@ -255,7 +214,7 @@ const ProductListPage = () => {
       {currentProducts.length === 0 && (
         <div className="text-center py-8">
           <p className="text-gray-500 text-lg">
-            No products found matching your criteria.
+            Loading...
           </p>
         </div>
       )}
@@ -275,11 +234,10 @@ const ProductListPage = () => {
             <button
               key={index + 1}
               onClick={() => paginate(index + 1)}
-              className={`px-4 py-2 rounded-md ${
-                currentPage === index + 1
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
+              className={`px-4 py-2 rounded-md ${currentPage === index + 1
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+                }`}
             >
               {index + 1}
             </button>
