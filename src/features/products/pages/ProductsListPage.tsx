@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL;
 
+
 interface Product {
   id: number;
   name: string;
@@ -23,43 +24,54 @@ const ProductListPage = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [brands, setBrands] = useState<string[]>([]);
-  const hasFetched = useRef(false);
-
   const [filters, setFilters] = useState({
     category: "",
     brand: "",
     search: "",
   });
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 6;
+  const hasFetched = useRef(false);
+
 
   // Products data - in real app, this would come from an API
-  useEffect(() => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
-    const fetchProducts = async () => {
-      try {
+ useEffect(() => {
+  if (hasFetched.current) return;
+  hasFetched.current = true;
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
 
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("Failed to fetch product");
-        const data: Product[] = await response.json();
-        setProducts(data);
-        setFilteredProducts(data);
+      const response = await fetch(API_URL);
+      if (!response.ok) throw new Error("Failed to fetch product");
 
-        // Extract unique categories and brands
-        const uniqueCategories = [...new Set(data.map((p) => p.category))];
-        const uniqueBrands = [...new Set(data.map((p) => p.brand))];
+      const data: Product[] = await response.json();
 
-        setCategories(uniqueCategories);
-        setBrands(uniqueBrands);
-        console.log(data);
-      } catch (error) {
-        console.error("Error fetching product:", error);
-      }
-    };
+      setProducts(data);
+      setFilteredProducts(data);
 
-    fetchProducts();
-  }, []);
+      const uniqueCategories = [...new Set(data.map(p => p.category))];
+      const uniqueBrands = [...new Set(data.map(p => p.brand))];
+
+      setCategories(uniqueCategories);
+      setBrands(uniqueBrands);
+
+    } catch (error) {
+      console.error("Error fetching product:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProducts();
+
+  const interval = setInterval(fetchProducts, 5000);
+
+  return () => clearInterval(interval);
+}, []);
+
+
 
   // Apply filters
   useEffect(() => {
@@ -210,14 +222,22 @@ const ProductListPage = () => {
         ))}
       </div>
 
-      {/* No Products Message */}
-      {currentProducts.length === 0 && (
+      {loading && (
         <div className="text-center py-8">
           <p className="text-gray-500 text-lg">
             Loading...
           </p>
         </div>
       )}
+      {/* No Products Message */}
+      {!loading && currentProducts.length === 0 && (
+        <div className="text-center py-8">
+          <p className="text-gray-500 text-lg">
+            No products found
+          </p>
+        </div>
+      )}
+
 
       {/* Pagination */}
       {totalPages > 1 && (
