@@ -1,4 +1,5 @@
 import { useCart } from "../../../context/CartContext";
+import { getProductImage } from "../../../utils/imageUtils";
 
 const Cart = () => {
     const {
@@ -16,7 +17,7 @@ const Cart = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">السلة فاضية 🛒</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2"> Start Shopping 🛒</h2>
                 <p className="text-gray-500 mb-8">Looks like you haven't added any items to the cart yet.</p>
                 <a href="/" className="bg-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl">
                     Start Shopping
@@ -39,7 +40,7 @@ const Cart = () => {
                             {/* Product Image */}
                             <div className="w-24 h-24 bg-gray-50 rounded-xl overflow-hidden shrink-0">
                                 <img
-                                    src={item.images?.[0] || item.image || 'https://via.placeholder.com/150'}
+                                    src={item.images?.[0] || getProductImage(item.id, item.name)}
                                     alt={item.name}
                                     className="w-full h-full object-cover"
                                 />
