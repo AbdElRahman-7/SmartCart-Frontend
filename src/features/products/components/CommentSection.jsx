@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const CommentSection = () => {
+const CommentSection = ({ productId }) => {
   const [comments, setComments] = useState([
     { id: 1, user: 'Alice', text: 'Great product! Highly recommended.', date: '2023-10-25' },
     { id: 2, user: 'Bob', text: 'Good value for money.', date: '2023-10-26' },
@@ -25,7 +25,7 @@ const CommentSection = () => {
   return (
     <div className="mt-12">
       <h2 className="text-2xl font-bold mb-6">Comments</h2>
-      
+
       {/* Comment List */}
       <div className="space-y-4 mb-8">
         {comments.map((comment) => (
